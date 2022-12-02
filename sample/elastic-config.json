@@ -1,0 +1,6 @@
+{
+  "host": "localhost",
+  "port": "9200",
+  "user": "elastic",
+  "secrete": "elastic"
+}

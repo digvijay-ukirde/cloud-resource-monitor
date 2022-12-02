@@ -1,0 +1,13 @@
+{
+  "regions_map": {
+    "us-south": "Dallas",
+    "us-east": "WashingtonDC",
+    "ca-tor": "Toronto",
+    "br-sao": "SaoPaulo",
+    "eu-de": "Frankfurt",
+    "eu-gb": "London",
+    "au-syd": "Sydney",
+    "jp-tok": "Tokyo",
+    "jp-osa": "Osaka"
+  }
+}
