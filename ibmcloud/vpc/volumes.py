@@ -5,7 +5,7 @@ from utils.common import write_json_file
 
 
 def get_volume_list(access_token, region):
-    url = f"https://{region}.iaas.cloud.ibm.com/v1/volumes?version=2022-10-18&generation=2"
+    url = f"https://{region}.iaas.cloud.ibm.com/v1/volumes?version=2022-11-29&generation=2"
     headers = {'Authorization': access_token}
     out = curl_execution('get', url, headers, None)
     logger.debug(f"cURL output for listing volumes: {out}")
@@ -13,7 +13,7 @@ def get_volume_list(access_token, region):
         if 'volumes' in out:
             if 'next' in out:
                 while out['next']:
-                    url = f"{out['next']['href']}&version=2022-10-18&generation=2"
+                    url = f"{out['next']['href']}&version=2022-11-29&generation=2"
                     logger.debug(f"Updated URL: {url}")
                     next_out = curl_execution('get', url, headers, None)
                     logger.debug(f"cURL output for new volumes: {next_out}")
