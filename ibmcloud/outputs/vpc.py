@@ -205,7 +205,7 @@ def set_volume_details(volume):
         'resource_group': volume['resource_group']['name'],
         'status': volume['status'],
         'created_at': volume['created_at'],
-        'zone': volume['zone'],
+        'zone': volume['zone']['name'],
         'active': volume['active'],
         'bandwidth': volume['bandwidth'],
         'busy': volume['busy'],
