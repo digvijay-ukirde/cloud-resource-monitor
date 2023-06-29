@@ -56,7 +56,8 @@ def get_instance_ini_conf(access_token, region, instance_id, owner_map):
 
 
 def get_instance_owner(key_name, owner_map):
-    for key, value in owner_map.items():
-        if key_name.startswith(key):
-            return key_name, value
-    return key_name, 'Unknown'
+    for item in owner_map:
+        for key in item['keys']:
+            if key_name.startswith(key):
+                return key_name, item['id'], item['name']
+    return key_name, 'Unknown', 'Unknown'

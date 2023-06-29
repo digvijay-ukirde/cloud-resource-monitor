@@ -1,5 +1,6 @@
 from utils.common import logger, read_json_file
 from elasticsearch import Elasticsearch
+import os
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -31,4 +32,11 @@ def delete_older_data(elastic, data):
 def upload_data(elastic, data):
     out = elastic.index(index='resources', body=data)
     logger.debug(f"ElasticSearch creating document query response: {out}")
+    return
+
+
+def upload_file(elastic, path):
+    for filename in os.listdir(path):
+        data = read_json_file(filename)
+        upload_data(elastic, data)
     return

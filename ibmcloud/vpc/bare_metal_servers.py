@@ -57,7 +57,8 @@ def get_bare_metal_server_ini_conf(access_token, region, bare_metal_server_id, o
 
 
 def get_bare_metal_server_owner(key_name, owner_map):
-    for key, value in owner_map.items():
-        if key_name.startswith(key):
-            return key_name, value
-    return key_name, 'Unknown'
+    for item in owner_map:
+        for key in item['keys']:
+            if key_name.startswith(key):
+                return key_name, item['id'], item['name']
+    return key_name, 'Unknown', 'Unknown'

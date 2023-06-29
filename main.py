@@ -1,7 +1,7 @@
 import argparse
 from ibmcloud.auth.iam import get_access_token
-from utils.common import logger, set_debug_mode, read_json_file
-from utils.elasticsearch import check_connection, delete_older_data, upload_data
+from utils.common import logger, set_debug_mode, read_json_file, write_json_file
+from utils.elasticsearch import check_connection, delete_older_data, upload_file
 from ibmcloud.vpc.regions import get_regions_map
 from ibmcloud.vpc.vpcs import get_vpc_list
 from ibmcloud.vpc.instances import get_instance_list, get_instance_ini_conf
@@ -64,8 +64,7 @@ if __name__ == "__main__":
                     for vpc in vpc_list['vpcs']:
                         vpc_details = set_vpc_details(vpc)
                         vpc_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, vpc_details)
+                        write_json_file(f"data/{vpc_details['id']}.json", vpc_details)
             except ValueError as err:
                 logger.warning(f"Obtaining VPC list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -74,15 +73,14 @@ if __name__ == "__main__":
             try:
                 if 'instances' in instance_list:
                     for instance in instance_list['instances']:
-                        instance['key'], instance['owner'] = get_instance_ini_conf(access_token, region_id,
-                                                                                   instance['id'], owner_map)
-                        if instance['owner'] == 'Unknown':
+                        instance['keys'], instance['owner_email'],  instance['owner_name'] = \
+                            get_instance_ini_conf(access_token, region_id, instance['id'], owner_map)
+                        if instance['owner_name'] == 'Unknown':
                             logger.warning(f"Owner not found for {instance['name']} instance "
-                                           f"with {instance['key']} in {region_name} region.")
+                                           f"with {instance['keys']} in {region_name} region.")
                         instance_details = set_instance_details(instance)
                         instance_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, instance_details)
+                        write_json_file(f"data/{instance_details['id']}.json", instance_details)
             except ValueError as err:
                 logger.warning(f"Obtaining instance list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -91,15 +89,14 @@ if __name__ == "__main__":
             try:
                 if 'bare_metal_servers' in bare_metal_server_list:
                     for bare_metal_server in bare_metal_server_list['bare_metal_servers']:
-                        bare_metal_server['key'], bare_metal_server['owner'] = \
+                        bare_metal_server['keys'], bare_metal_server['owner'] = \
                             get_bare_metal_server_ini_conf(access_token, region_id, bare_metal_server['id'], owner_map)
                         if bare_metal_server['owner'] == 'Unknown':
                             logger.warning(f"Owner not found for {bare_metal_server['name']} bare metal server "
-                                           f"with {bare_metal_server['key']} in {region_name} region.")
+                                           f"with {bare_metal_server['keys']} in {region_name} region.")
                         bare_metal_server_details = set_bare_metal_server_details(bare_metal_server)
                         bare_metal_server_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, bare_metal_server_details)
+                        write_json_file(f"data/{bare_metal_server_details['id']}.json", bare_metal_server_details)
             except ValueError as err:
                 logger.warning(f"Obtaining bare metal server list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -110,8 +107,6 @@ if __name__ == "__main__":
                     for dedicated_host in dedicated_host_list['dedicated_hosts']:
                         dedicated_host_details = set_dedicated_host_details(dedicated_host)
                         dedicated_host_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, dedicated_host_details)
             except ValueError as err:
                 logger.warning(f"Obtaining dedicated hosts list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -122,8 +117,7 @@ if __name__ == "__main__":
                     for volume in volume_list['volumes']:
                         volume_details = set_volume_details(volume)
                         volume_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, volume_details)
+                        write_json_file(f"data/{volume_details['id']}.json", volume_details)
             except ValueError as err:
                 logger.warning(f"Obtaining volume list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -134,8 +128,7 @@ if __name__ == "__main__":
                     for floating_ip in floating_ip_list['floating_ips']:
                         floating_ip_details = set_floating_ip_details(floating_ip)
                         floating_ip_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, floating_ip_details)
+                        write_json_file(f"data/{floating_ip_details['id']}.json", floating_ip_details)
             except ValueError as err:
                 logger.warning(f"Obtaining floating IP list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -147,9 +140,14 @@ if __name__ == "__main__":
                         if image['visibility'] != 'public':
                             image_details = set_image_details(image)
                             image_details.update(metadata)
-                            if elastic_client:
-                                upload_data(elastic_client, image_details)
+                            write_json_file(f"data/{image_details['id']}.json", image_details)
             except ValueError as err:
                 logger.warning(f"Obtaining image list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
                 logger.warning(f"Obtaining image list failed. Type Error : {err}. Skipping!")
+
+            try:
+                if elastic_client:
+                    upload_file(elastic_client, "data")
+            except Exception as err:
+                logger.warning(f"Uploading resource details failed. Value Error : {err}. Skipping!")
