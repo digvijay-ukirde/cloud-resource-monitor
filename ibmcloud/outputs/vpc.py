@@ -25,7 +25,10 @@ def get_resource_cost(resource_details):
     if resource_details['resource_type'] in ['Instance', 'Bare Metal Server', 'Dedicated Host']:
         if resource_details['profile']:
             logger.debug(f"Resource profile is {resource_details['profile']}")
-            cost = total_hrs * cost_sheet_details[resource_details['resource_type']][resource_details['profile']]
+            if cost_sheet_details[resource_details['resource_type']][resource_details['profile']]:
+                cost = total_hrs * cost_sheet_details[resource_details['resource_type']][resource_details['profile']]
+            else:
+                cost = 0
     return round(cost, 2)
 
 

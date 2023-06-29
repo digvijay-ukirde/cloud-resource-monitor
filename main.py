@@ -51,6 +51,19 @@ if __name__ == "__main__":
         for region_id, region_name in regions_map.items():
             metadata['region'] = region_name
 
+            volume_list = get_volume_list(access_token, region_id)
+            try:
+                if 'volumes' in volume_list:
+                    for volume in volume_list['volumes']:
+                        volume_details = set_volume_details(volume)
+                        volume_details.update(metadata)
+                        if elastic_client:
+                            upload_data(elastic_client, volume_details)
+            except ValueError as err:
+                logger.warning(f"Obtaining volume list failed. Value Error : {err}. Skipping!")
+            except TypeError as err:
+                logger.warning(f"Obtaining volume list failed. Type Error : {err}. Skipping!")
+
             vpc_list = get_vpc_list(access_token, region_id)
             instance_list = get_instance_list(access_token, region_id)
             bare_metal_server_list = get_bare_metal_server_list(access_token, region_id)
