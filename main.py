@@ -1,6 +1,6 @@
 import argparse
 from ibmcloud.auth.iam import get_access_token
-from utils.common import logger, set_debug_mode, read_json_file, write_json_file
+from utils.common import logger, set_debug_mode, read_json_file, write_json_file, update_json_file
 from utils.elasticsearch import check_connection, delete_older_data, upload_file
 from ibmcloud.vpc.regions import get_regions_map
 from ibmcloud.vpc.vpcs import get_vpc_list
@@ -10,8 +10,9 @@ from ibmcloud.vpc.images import get_image_list
 from ibmcloud.vpc.volumes import get_volume_list
 from ibmcloud.vpc.floating_ips import get_floating_ip_list
 from ibmcloud.vpc.dedicated_hosts import get_dedicated_host_list
-from ibmcloud.outputs.vpc import set_vpc_details, set_instance_details, set_bare_metal_server_details, \
-    set_image_details, set_volume_details, set_floating_ip_details, set_dedicated_host_details
+from ibmcloud.outputs.vpc import set_vpc_details, set_instance_details, \
+    set_bare_metal_server_details, set_image_details, set_volume_details, set_floating_ip_details, \
+    set_dedicated_host_details
 
 if __name__ == "__main__":
     PARSER = argparse.ArgumentParser(description='Retrieve resource information')
@@ -80,6 +81,9 @@ if __name__ == "__main__":
                         instance_details = set_instance_details(instance)
                         instance_details.update(metadata)
                         write_json_file(f"data/{instance_details['id']}.json", instance_details)
+                        update_json_file(f"data/{instance_details['vpc_id']}.json",
+                                         {'owner_email': instance['owner_email'],
+                                          'owner_name': instance['owner_name']})
             except ValueError as err:
                 logger.warning(f"Obtaining instance list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -96,6 +100,9 @@ if __name__ == "__main__":
                         bare_metal_server_details = set_bare_metal_server_details(bare_metal_server)
                         bare_metal_server_details.update(metadata)
                         write_json_file(f"data/{bare_metal_server_details['id']}.json", bare_metal_server_details)
+                        update_json_file(f"data/{instance_details['vpc_id']}.json",
+                                         {'owner_email': instance['owner_email'],
+                                          'owner_name': instance['owner_name']})
             except ValueError as err:
                 logger.warning(f"Obtaining bare metal server list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
