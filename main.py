@@ -51,26 +51,13 @@ if __name__ == "__main__":
         for region_id, region_name in regions_map.items():
             metadata['region'] = region_name
 
-            volume_list = get_volume_list(access_token, region_id)
-            try:
-                if 'volumes' in volume_list:
-                    for volume in volume_list['volumes']:
-                        volume_details = set_volume_details(volume)
-                        volume_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, volume_details)
-            except ValueError as err:
-                logger.warning(f"Obtaining volume list failed. Value Error : {err}. Skipping!")
-            except TypeError as err:
-                logger.warning(f"Obtaining volume list failed. Type Error : {err}. Skipping!")
-
             vpc_list = get_vpc_list(access_token, region_id)
             instance_list = get_instance_list(access_token, region_id)
             bare_metal_server_list = get_bare_metal_server_list(access_token, region_id)
-            image_list = get_image_list(access_token, region_id)
+            dedicated_host_list = get_dedicated_host_list(access_token, region_id)
             volume_list = get_volume_list(access_token, region_id)
             floating_ip_list = get_floating_ip_list(access_token, region_id)
-            dedicated_host_list = get_dedicated_host_list(access_token, region_id)
+            image_list = get_image_list(access_token, region_id)
 
             try:
                 if 'vpcs' in vpc_list:
@@ -119,17 +106,16 @@ if __name__ == "__main__":
                 logger.warning(f"Obtaining bare metal server list failed. Type Error : {err}. Skipping!")
 
             try:
-                if 'images' in image_list:
-                    for image in image_list['images']:
-                        if image['visibility'] != 'public':
-                            image_details = set_image_details(image)
-                            image_details.update(metadata)
-                            if elastic_client:
-                                upload_data(elastic_client, image_details)
+                if 'dedicated_hosts' in dedicated_host_list:
+                    for dedicated_host in dedicated_host_list['dedicated_hosts']:
+                        dedicated_host_details = set_dedicated_host_details(dedicated_host)
+                        dedicated_host_details.update(metadata)
+                        if elastic_client:
+                            upload_data(elastic_client, dedicated_host_details)
             except ValueError as err:
-                logger.warning(f"Obtaining image list failed. Value Error : {err}. Skipping!")
+                logger.warning(f"Obtaining dedicated hosts list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
-                logger.warning(f"Obtaining image list failed. Type Error : {err}. Skipping!")
+                logger.warning(f"Obtaining dedicated hosts list failed. Type Error : {err}. Skipping!")
 
             try:
                 if 'volumes' in volume_list:
@@ -156,13 +142,14 @@ if __name__ == "__main__":
                 logger.warning(f"Obtaining floating IP list failed. Type Error : {err}. Skipping!")
 
             try:
-                if 'dedicated_hosts' in dedicated_host_list:
-                    for dedicated_host in dedicated_host_list['dedicated_hosts']:
-                        dedicated_host_details = set_dedicated_host_details(dedicated_host)
-                        dedicated_host_details.update(metadata)
-                        if elastic_client:
-                            upload_data(elastic_client, dedicated_host_details)
+                if 'images' in image_list:
+                    for image in image_list['images']:
+                        if image['visibility'] != 'public':
+                            image_details = set_image_details(image)
+                            image_details.update(metadata)
+                            if elastic_client:
+                                upload_data(elastic_client, image_details)
             except ValueError as err:
-                logger.warning(f"Obtaining dedicated hosts list failed. Value Error : {err}. Skipping!")
+                logger.warning(f"Obtaining image list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
-                logger.warning(f"Obtaining dedicated hosts list failed. Type Error : {err}. Skipping!")
+                logger.warning(f"Obtaining image list failed. Type Error : {err}. Skipping!")
