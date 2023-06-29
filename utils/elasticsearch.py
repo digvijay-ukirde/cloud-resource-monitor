@@ -1,6 +1,6 @@
 from utils.common import logger, read_json_file
 from elasticsearch import Elasticsearch
-import os
+import glob
 import requests
 requests.packages.urllib3.disable_warnings()
 
@@ -35,7 +35,7 @@ def upload_data(elastic, data):
 
 
 def upload_file(elastic, path):
-    for filename in os.listdir(path):
-        data = read_json_file(filename)
+    for file in glob.glob(f"{path}/*.json"):
+        data = read_json_file(file)
         upload_data(elastic, data)
     return
