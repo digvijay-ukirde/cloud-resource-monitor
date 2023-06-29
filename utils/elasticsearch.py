@@ -2,8 +2,7 @@ from utils.common import logger, read_json_file
 from elasticsearch import Elasticsearch
 import os
 import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings()
 
 
 def check_connection(file_path):
