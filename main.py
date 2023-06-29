@@ -63,7 +63,6 @@ if __name__ == "__main__":
                 if 'vpcs' in vpc_list:
                     for vpc in vpc_list['vpcs']:
                         vpc_details = set_vpc_details(vpc)
-                        vpc_details.update(metadata)
                         write_json_file(f"data/{vpc_details['id']}.json", vpc_details)
             except ValueError as err:
                 logger.warning(f"Obtaining VPC list failed. Value Error : {err}. Skipping!")
@@ -89,9 +88,9 @@ if __name__ == "__main__":
             try:
                 if 'bare_metal_servers' in bare_metal_server_list:
                     for bare_metal_server in bare_metal_server_list['bare_metal_servers']:
-                        bare_metal_server['keys'], bare_metal_server['owner'] = \
+                        bare_metal_server['keys'], bare_metal_server['owner_email'], bare_metal_server['owner_name'] = \
                             get_bare_metal_server_ini_conf(access_token, region_id, bare_metal_server['id'], owner_map)
-                        if bare_metal_server['owner'] == 'Unknown':
+                        if bare_metal_server['owner_name'] == 'Unknown':
                             logger.warning(f"Owner not found for {bare_metal_server['name']} bare metal server "
                                            f"with {bare_metal_server['keys']} in {region_name} region.")
                         bare_metal_server_details = set_bare_metal_server_details(bare_metal_server)
