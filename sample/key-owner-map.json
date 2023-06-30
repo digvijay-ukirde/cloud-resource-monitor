@@ -1,5 +1,12 @@
-{
-    "admin-": "Admin",
-    "user1-": "User1",
-    "user2-": "User2"
-}
+[
+    {
+        "id": "user1@abc.com",
+        "name": "User1",
+        "keys": ["user1-"]
+    },
+    {
+        "id": "user2@abc.com",
+        "name": "User2",
+        "keys": ["user2-"]
+    }
+]

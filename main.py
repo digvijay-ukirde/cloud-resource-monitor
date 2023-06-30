@@ -186,4 +186,3 @@ if __name__ == "__main__":
             upload_file(elastic_client, "data")
     except Exception as err:
         logger.warning(f"Uploading resource details failed. Value Error : {err}. Skipping!")
-
