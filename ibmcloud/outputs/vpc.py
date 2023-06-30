@@ -222,7 +222,7 @@ def set_volume_details(volume):
     if logger.root.level == logger.DEBUG:
         file_name = f"data/volume-{volume_details['name']}.json"
         write_json_file(file_name, volume_details)
-        write_elk_file('data/image.json', volume_details)
+        write_elk_file('data/volume.json', volume_details)
     return volume_details
 
 
@@ -256,3 +256,26 @@ def set_floating_ip_details(floating_ip):
         write_json_file(file_name, floating_ip_details)
         write_elk_file('data/floating_ips.json', floating_ip_details)
     return floating_ip_details
+
+
+def set_workspace_details(workspace):
+    workspace_details = {
+        'resource_type': 'Workspace',
+        'id': workspace['id'],
+        'name': workspace['name'],
+        'crn': workspace['crn'],
+        'resource_group': workspace['resource_group'],
+        'status': workspace['status'],
+        'created_at': workspace['created_at'],
+        'owner_email': workspace['created_by'],
+        'owner_name': workspace['owner_name'],
+        'type': workspace['type'],
+        'cost': 0
+    }
+    workspace_details['age'] = get_resource_age(workspace_details['created_at'])
+    logger.debug(f"Workspace Details: {workspace_details}")
+    if logger.root.level == logger.DEBUG:
+        file_name = f"data/workspace-{workspace_details['name']}.json"
+        write_json_file(file_name, workspace_details)
+        write_elk_file('data/workspace.json', workspace_details)
+    return workspace_details

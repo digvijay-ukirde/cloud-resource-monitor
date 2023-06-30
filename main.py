@@ -2,7 +2,7 @@ import argparse
 from ibmcloud.auth.iam import get_access_token
 from utils.common import logger, set_debug_mode, read_json_file, write_json_file, update_json_file
 from utils.elasticsearch import check_connection, delete_older_data, upload_file
-from ibmcloud.vpc.regions import get_regions_map
+from ibmcloud.vpc.regions import get_endpoint_map
 from ibmcloud.vpc.vpcs import get_vpc_list
 from ibmcloud.vpc.instances import get_instance_list, get_instance_ini_conf
 from ibmcloud.vpc.bare_metal_servers import get_bare_metal_server_list, get_bare_metal_server_ini_conf
@@ -10,7 +10,8 @@ from ibmcloud.vpc.images import get_image_list
 from ibmcloud.vpc.volumes import get_volume_list
 from ibmcloud.vpc.floating_ips import get_floating_ip_list
 from ibmcloud.vpc.dedicated_hosts import get_dedicated_host_list
-from ibmcloud.outputs.vpc import set_vpc_details, set_instance_details, \
+from ibmcloud.vpc.workspaces import get_workspace_list, get_resource_list
+from ibmcloud.outputs.vpc import set_vpc_details, set_instance_details, set_workspace_details, \
     set_bare_metal_server_details, set_image_details, set_volume_details, set_floating_ip_details, \
     set_dedicated_host_details
 
@@ -47,9 +48,8 @@ if __name__ == "__main__":
 
     if ARGUMENTS.platform == 'ibmcloud':
         access_token = get_access_token(ARGUMENTS.api_key)
-
-        regions_map = get_regions_map()
-        for region_id, region_name in regions_map.items():
+        vpc_regions_map = get_endpoint_map('vpc')
+        for region_id, region_name in vpc_regions_map.items():
             metadata['region'] = region_name
 
             vpc_list = get_vpc_list(access_token, region_id)
@@ -100,9 +100,9 @@ if __name__ == "__main__":
                         bare_metal_server_details = set_bare_metal_server_details(bare_metal_server)
                         bare_metal_server_details.update(metadata)
                         write_json_file(f"data/{bare_metal_server_details['id']}.json", bare_metal_server_details)
-                        update_json_file(f"data/{instance_details['vpc_id']}.json",
-                                         {'owner_email': instance['owner_email'],
-                                          'owner_name': instance['owner_name']})
+                        update_json_file(f"data/{bare_metal_server_details['vpc_id']}.json",
+                                         {'owner_email': bare_metal_server_details['owner_email'],
+                                          'owner_name': bare_metal_server_details['owner_name']})
             except ValueError as err:
                 logger.warning(f"Obtaining bare metal server list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
@@ -152,8 +152,38 @@ if __name__ == "__main__":
             except TypeError as err:
                 logger.warning(f"Obtaining image list failed. Type Error : {err}. Skipping!")
 
+        workspace_regions_map = get_endpoint_map('workspace')
+        for region_id, region_name in workspace_regions_map.items():
+            workspace_list = get_workspace_list(access_token, region_id)
+
             try:
-                if elastic_client:
-                    upload_file(elastic_client, "data")
-            except Exception as err:
-                logger.warning(f"Uploading resource details failed. Value Error : {err}. Skipping!")
+                if 'workspaces' in workspace_list:
+                    for workspace in workspace_list['workspaces']:
+                        workspace['owner_name'] = 'Unknown'
+                        if owner_map:
+                            for item in owner_map:
+                                if workspace['created_by'] == item['id']:
+                                    workspace['owner_name'] = item['name']
+                        workspace_details = set_workspace_details(workspace)
+                        write_json_file(f"data/{workspace['id']}.json", workspace_details)
+                        resource_list = get_resource_list(access_token, region_id, workspace_details['id'])
+                        if resource_list:
+                            for resource in resource_list['resources']:
+                                if resource['resource_type'] in ['ibm_is_vpc', 'ibm_is_instance',
+                                                                 'ibm_is_bare_metal_server', 'ibm_is_dedicated_host',
+                                                                 'ibm_is_volume', 'ibm_is_floating_ip']:
+                                    update_json_file(f"data/{resource['id']}.json",
+                                                     {'owner_email': workspace['owner_email'],
+                                                      'owner_name': workspace['owner_name'],
+                                                      'created_from': 'schematics'})
+            except ValueError as err:
+                logger.warning(f"Obtaining workspace list failed. Value Error : {err}. Skipping!")
+            except TypeError as err:
+                logger.warning(f"Obtaining workspace list failed. Type Error : {err}. Skipping!")
+
+    try:
+        if elastic_client:
+            upload_file(elastic_client, "data")
+    except Exception as err:
+        logger.warning(f"Uploading resource details failed. Value Error : {err}. Skipping!")
+

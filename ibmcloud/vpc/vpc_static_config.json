@@ -1,5 +1,5 @@
 {
-  "regions_map": {
+  "vpc": {
     "us-south": "Dallas",
     "us-east": "WashingtonDC",
     "ca-tor": "Toronto",
@@ -9,5 +9,11 @@
     "au-syd": "Sydney",
     "jp-tok": "Tokyo",
     "jp-osa": "Osaka"
+  },
+  "workspace": {
+    "us-south": "Dallas",
+    "us-east": "WashingtonDC",
+    "eu-de": "Frankfurt",
+    "eu-gb": "London"
   }
 }
