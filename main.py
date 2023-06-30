@@ -166,16 +166,20 @@ if __name__ == "__main__":
                                     workspace['owner_name'] = item['name']
                         workspace_details = set_workspace_details(workspace)
                         write_json_file(f"data/{workspace['id']}.json", workspace_details)
-                        resource_list = get_resource_list(access_token, region_id, workspace_details['id'])
-                        if resource_list:
-                            for resource in resource_list['resources']:
-                                if resource['resource_type'] in ['ibm_is_vpc', 'ibm_is_instance',
-                                                                 'ibm_is_bare_metal_server', 'ibm_is_dedicated_host',
-                                                                 'ibm_is_volume', 'ibm_is_floating_ip']:
-                                    update_json_file(f"data/{resource['id']}.json",
-                                                     {'owner_email': workspace['owner_email'],
-                                                      'owner_name': workspace['owner_name'],
-                                                      'created_from': 'schematics'})
+                        if workspace_details['status'] in ['ACTIVE', 'FAILED']:
+                            resource_list = get_resource_list(access_token, region_id, workspace_details['id'])
+                            if resource_list:
+                                for resource in resource_list['resources']:
+                                    if resource['resource_type'] in ['ibm_is_vpc',
+                                                                     'ibm_is_instance',
+                                                                     'ibm_is_bare_metal_server',
+                                                                     'ibm_is_dedicated_host',
+                                                                     'ibm_is_volume',
+                                                                     'ibm_is_floating_ip']:
+                                        update_json_file(f"data/{resource['id']}.json",
+                                                         {'owner_email': workspace['owner_email'],
+                                                          'owner_name': workspace['owner_name'],
+                                                          'created_from': 'schematics'})
             except ValueError as err:
                 logger.warning(f"Obtaining workspace list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
