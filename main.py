@@ -165,7 +165,8 @@ if __name__ == "__main__":
                                 if workspace['created_by'] == item['id']:
                                     workspace['owner_name'] = item['name']
                         workspace_details = set_workspace_details(workspace)
-                        write_json_file(f"data/{workspace['id']}.json", workspace_details)
+                        # Only add workspace data for debugging purposes
+                        # write_json_file(f"data/{workspace['id']}.json", workspace_details)
                         if workspace_details['status'] in ['ACTIVE', 'FAILED']:
                             resource_list = get_resource_list(access_token, region_id, workspace_details['id'])
                             if resource_list:
@@ -179,7 +180,8 @@ if __name__ == "__main__":
                                         update_json_file(f"data/{resource['id']}.json",
                                                          {'owner_email': workspace['owner_email'],
                                                           'owner_name': workspace['owner_name'],
-                                                          'created_from': 'schematics'})
+                                                          'created_from': 'workspace',
+                                                          'workspace_id': workspace['id']})
             except ValueError as err:
                 logger.warning(f"Obtaining workspace list failed. Value Error : {err}. Skipping!")
             except TypeError as err:
