@@ -64,6 +64,7 @@ if __name__ == "__main__":
                 if 'vpcs' in vpc_list:
                     for vpc in vpc_list['vpcs']:
                         vpc_details = set_vpc_details(vpc)
+                        vpc_details.update(metadata)
                         write_json_file(f"data/{vpc_details['id']}.json", vpc_details)
             except ValueError as err:
                 logger.warning(f"Obtaining VPC list failed. Value Error : {err}. Skipping!")
