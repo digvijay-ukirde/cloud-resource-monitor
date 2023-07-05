@@ -31,6 +31,16 @@ def write_json_file(file_name, json_data):
     return
 
 
+def update_json_file(file_path, json_data):
+    try:
+        json_details = read_json_file(file_path)
+        json_details.update(json_data)
+        write_json_file(file_path, json_details)
+    except OSError as err:
+        logger.error(f"Failed while updating json file. Error: {err}")
+    return
+
+
 def write_elk_file(file_name, data):
     try:
         with open(file_name, 'a') as f:

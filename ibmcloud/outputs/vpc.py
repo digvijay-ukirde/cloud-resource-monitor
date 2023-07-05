@@ -75,10 +75,11 @@ def set_instance_details(instance):
         'resource_group': instance['resource_group']['name'],
         'status': instance['status'],
         'created_at': instance['created_at'],
+        'owner_email': instance['owner_email'],
+        'owner_name': instance['owner_name'],
         'image_id': instance['image']['id'],
         'image_name': instance['image']['name'],
-        'key': instance['key'],
-        'owner': instance['owner'],
+        'keys': instance['keys'],
         'profile': instance['profile']['name'],
         'vcpu': instance['vcpu']['count'],
         'memory': instance['memory'],
@@ -117,8 +118,9 @@ def set_bare_metal_server_details(bare_metal_server):
         'resource_group': bare_metal_server['resource_group']['name'],
         'status': bare_metal_server['status'],
         'created_at': bare_metal_server['created_at'],
-        'key': bare_metal_server['key'],
-        'owner': bare_metal_server['owner'],
+        'owner_email': bare_metal_server['owner_email'],
+        'owner_name': bare_metal_server['owner_name'],
+        'keys': bare_metal_server['keys'],
         'profile': bare_metal_server['profile']['name'],
         'vcpu': bare_metal_server['cpu']['core_count'] * bare_metal_server['cpu']['threads_per_core'],
         'memory': bare_metal_server['memory'],
@@ -220,7 +222,7 @@ def set_volume_details(volume):
     if logger.root.level == logger.DEBUG:
         file_name = f"data/volume-{volume_details['name']}.json"
         write_json_file(file_name, volume_details)
-        write_elk_file('data/image.json', volume_details)
+        write_elk_file('data/volume.json', volume_details)
     return volume_details
 
 
@@ -254,3 +256,26 @@ def set_floating_ip_details(floating_ip):
         write_json_file(file_name, floating_ip_details)
         write_elk_file('data/floating_ips.json', floating_ip_details)
     return floating_ip_details
+
+
+def set_workspace_details(workspace):
+    workspace_details = {
+        'resource_type': 'Workspace',
+        'id': workspace['id'],
+        'name': workspace['name'],
+        'crn': workspace['crn'],
+        'resource_group': workspace['resource_group'],
+        'status': workspace['status'],
+        'created_at': workspace['created_at'],
+        'owner_email': workspace['created_by'],
+        'owner_name': workspace['owner_name'],
+        'type': workspace['type'],
+        'cost': 0
+    }
+    workspace_details['age'] = get_resource_age(workspace_details['created_at'])
+    logger.debug(f"Workspace Details: {workspace_details}")
+    if logger.root.level == logger.DEBUG:
+        file_name = f"data/workspace-{workspace_details['name']}.json"
+        write_json_file(file_name, workspace_details)
+        write_elk_file('data/workspace.json', workspace_details)
+    return workspace_details
