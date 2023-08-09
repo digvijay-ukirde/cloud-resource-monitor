@@ -97,10 +97,12 @@
   "Bare Metal Server":
   {
     "bx2-metal-96x384": 4.609,
+    "bx2d-metalelba-96x384": 6.362,
     "bx2d-metal-96x384": 6.362,
     "bx2-metal-192x768": 9.219,
     "bx2d-metal-192x768": 12.726,
     "cx2-metal-96x192": 4.081,
+    "cx2d-metalelba-96x192": 5.834,
     "cx2d-metal-96x192": 5.834,
     "mx2-metal-96x768": 5.961,
     "mx2d-metal-96x768": 7.714,
