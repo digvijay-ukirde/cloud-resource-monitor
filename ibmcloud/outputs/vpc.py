@@ -13,6 +13,7 @@ def get_resource_age(creation_date):
 
 def get_resource_cost(resource_details):
     cost = 0
+    '''
     file_path = f"ibmcloud/vpc/resource_cost_sheet.json"
     cost_sheet_details = read_json_file(file_path)
     c_day = datetime.strptime(resource_details['created_at'][:19], "%Y-%m-%dT%H:%M:%S")
@@ -32,6 +33,7 @@ def get_resource_cost(resource_details):
                     cost = 0
             except KeyError as err:
                 logger.warning(f"Resource profile is not listed in cost sheet. Key Error : {err}. Skipping!")
+    '''
     return round(cost, 2)
 
 
